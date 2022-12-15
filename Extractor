@@ -1,0 +1,92 @@
+Option Explicit
+Sub SavePdfAttachments()
+    'setup variables
+    Dim olApp           As Object
+    Dim olNS            As Object
+    Dim olFolder        As Object
+    Dim olItems         As Object
+    Dim olItem          As Object
+    Dim olAtt           As Object
+    Dim sSaveToFolder   As String
+    Dim Ans             As Long
+    Dim fileValue, fileMessage, fileTitle
+    Dim fileCount, fileCountMsg As Integer
+
+    fileMessage = "Enter File Path"
+    fileTitle = "File Path"
+
+    'Get path from user
+    fileValue = InputBox(fileMessage, fileTitle)
+
+    sSaveToFolder = fileValue + "\"
+
+    fileCount = 0
+    fileCountMsg = 0
+
+    'setup Outlook objects and set target folder in Outlook
+    Set olApp = CreateObject("Outlook.Application")
+    Set olNS = olApp.GetNamespace("MAPI")
+    Set olFolder = olNS.Folders(ahmad.taj@#####.com).Folders("Inbox").Folders("####").Folders("####").Folders("Hold")
+    Set olItems = olFolder.Items
+
+    'Algorithm to go through Outlook folder and extract PDF attachments
+    For Each olItem In olItems
+        'make sure folder is not empty
+        If olItem.Attachments.Count > 0 Then
+            For Each olAtt In olItem.Attachments
+                'Check if attachment is a PDF and save if filename does not exist in folder
+                If Right(olAtt.FileName, 4) = ".pdf" Or Right(olAtt.FileName, 4) = ".PDF" Then
+                    If Len(Dir(sSaveToFolder & olAtt.FileName)) = 0 Then
+                        olAtt.SaveAsFile sSaveToFolder & olAtt.FileName
+                        olItem.Save
+                    'Ask user if they want to overwrite and existing filename, if not use filename and add number at
+                    'the end to differentiate
+                    Else
+                        Ans = MsgBox(olAtt.FileName & " already exists.  Overwrite file?", vbQuestion + vbYesNo)
+                        If Ans = vbYes Then
+                            olAtt.SaveAsFile sSaveToFolder & olAtt.FileName
+                            olItem.Save
+                        End If
+                        If Ans = vbNo Then
+                            Dim fileNameOld, cutFileName As String
+                            fileNameOld = CStr(olAtt.FileName)
+                            cutFileName = Left(fileNameOld, Len(fileNameOld) - 4)
+                            olAtt.SaveAsFile sSaveToFolder & cutFileName + "-" + CStr(fileCount) + ".pdf"
+                            olItem.Save
+                            fileCount = fileCount + 1
+                        End If
+                    End If
+                End If
+                'Algorithm to handle emails that have emails as attachments
+                If Right(olAtt.FileName, 4) = ".msg" Or Right(olAtt.FileName, 4) = ".MSG" Then
+                    If Len(Dir(sSaveToFolder & olAtt.FileName)) = 0 Then
+                        olAtt.SaveAsFile sSaveToFolder & olAtt.FileName
+                        olItem.Save
+                    Else
+                        Ans = MsgBox(olAtt.FileName & " already exists.  Overwrite file?", vbQuestion + vbYesNo)
+                        If Ans = vbYes Then
+                            olAtt.SaveAsFile sSaveToFolder & olAtt.FileName
+                            olItem.Save
+                        End If
+                        If Ans = vbNo Then
+                            Dim fileNameOldMsg, cutFileNameMsg As String
+                            fileNameOldMsg = CStr(olAtt.FileName)
+                            cutFileNameMsg = Left(fileNameOldMsg, Len(fileNameOldMsg) - 4)
+                            olAtt.SaveAsFile sSaveToFolder & cutFileNameMsg + "-" + CStr(fileCountMsg) + ".msg"
+                            olItem.Save
+                            fileCountMsg = fileCountMsg + 1
+                        End If
+                    End If
+                End If
+            Next olAtt
+        End If
+    Next olItem
+
+    Set olApp = Nothing
+    Set olNS = Nothing
+    Set olFolder = Nothing
+    Set olItems = Nothing
+    Set olItem = Nothing
+    Set olAtt = Nothing
+
+End Sub
