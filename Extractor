@@ -39,7 +39,7 @@ Sub SavePdfAttachments()
                     If Len(Dir(sSaveToFolder & olAtt.FileName)) = 0 Then
                         olAtt.SaveAsFile sSaveToFolder & olAtt.FileName
                         olItem.Save
-                    'Ask user if they want to overwrite and existing filename, if not use filename and add number at
+                    'Ask user if they want to overwrite an existing filename, if not use filename and add number at
                     'the end to differentiate
                     Else
                         Ans = MsgBox(olAtt.FileName & " already exists.  Overwrite file?", vbQuestion + vbYesNo)
