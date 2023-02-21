@@ -63,7 +63,7 @@ Sub SavePdfAttachments()
                         olAtt.SaveAsFile sSaveToFolder & olAtt.FileName
                         olItem.Save
                     Else
-                        Ans = MsgBox(olAtt.FileName & " already exists.  Overwrite file?", vbQuestion + vbYesNo)
+                        Ans = MsgBox(olAtt.FileName & " already exists, overwrite file?", vbQuestion + vbYesNo)
                         If Ans = vbYes Then
                             olAtt.SaveAsFile sSaveToFolder & olAtt.FileName
                             olItem.Save
